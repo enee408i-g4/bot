@@ -2,12 +2,12 @@
 
 #define LMOTORDIR 8
 #define LMOTORPWM 3
-#define RMOTORDIR 7
+#define RMOTORDIR 6
 #define RMOTORPWM 5
 #define PING      13
 #define LMOTORRATIO 1.00f
 #define RMOTORRATIO 1.02f
-#define SLOW 50
+#define SLOW    50
 
 #define DEBUG     (12)
 
@@ -32,45 +32,53 @@ int rmotors = (int) ((float) SLOW * RMOTORRATIO);
 
 // the loop function runs over and over again forever
 void loop() {
- 
 
-//analogWrite(LMOTORPWM, lmotor);
-//analogWrite(RMOTORPWM, rmotor);
+
+  //analogWrite(LMOTORPWM, lmotor);
+  //analogWrite(RMOTORPWM, rmotor);
 
   /*StaticJsonBuffer<200> jsBuf;
-  JsonObject& root = jsBuf.createObject();
-  root["ping"] = pingCm();
-  root["lmotor"] = lmotor;
-  root["rmotor"] = rmotor;
-  root.printTo(Serial);
-  Serial.println();
-  */
+   JsonObject& root = jsBuf.createObject();
+   root["ping"] = pingCm();
+   root["lmotor"] = lmotor;
+   root["rmotor"] = rmotor;
+   root.printTo(Serial);
+   Serial.println();
+   */
 
   if(Serial.available() > 0) {
     digitalWrite(DEBUG, HIGH);
     StaticJsonBuffer<200> buf;
-    String str = Serial.readString();
-    JsonObject& root = buf.parseObject(str);
-    Serial.println(str);
-    const char *command = root["command"];
-    Serial.println(command);
+    String msg;
+    for(int i = 0; i < 200; i++) {
+      char c = (char) Serial.read();
+      if(c  == '\n') break;
+      else msg += c; 
+    }
+    JsonObject& root = buf.parseObject(msg);
+    Serial.println(msg);
+    String command = root["command"];
 
     lmotors = (int) ((float) SLOW * LMOTORRATIO);
     rmotors = (int) ((float) SLOW * RMOTORRATIO);
 
-    if(strcmp(command, "forward") == 0) {
+    if(command == "forward") {
       lmotord = 1;
       rmotord = 1;
-    } else if (strcmp(command, "backward") == 0) {
+    } 
+    else if (command == "backward") {
       lmotord = 0;
       rmotord = 0;
-    } else if (strcmp(command, "left") == 0) {
+    } 
+    else if (command == "left") {
       lmotord = 0;
       rmotord = 1;
-    } else if (strcmp(command, "right") == 0) {
+    } 
+    else if (command == "right") {
       lmotord = 1;
       rmotord = 0;
-    } else if (strcmp(command, "stop") == 0) {
+    } 
+    else if (command == "stop") {
       lmotors = 0;
       rmotors = 0;
     }
@@ -80,14 +88,15 @@ void loop() {
     Serial.println(lmotors); 
     Serial.println(rmotors);
     Serial.println();
-    
+
+
     analogWrite(LMOTORPWM, lmotors);
     analogWrite(RMOTORPWM, rmotors);
     digitalWrite(LMOTORDIR, lmotord);
     digitalWrite(RMOTORDIR, rmotord);
-    
+
   }
-  
+
   delay(100L);
 }
 
@@ -120,3 +129,4 @@ long microsecondsToCentimeters(long microseconds) {
   // object we take half of the distance travelled.
   return microseconds / 29 / 2;
 }
+

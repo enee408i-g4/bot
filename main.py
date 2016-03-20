@@ -1,5 +1,7 @@
 import json
 import serial
+import sys
+sys.path.append('/home/pi/pixy/build/libpixyusb_swig')
 from pixy import *
 from ctypes import *
 
@@ -12,8 +14,6 @@ PIXY_Y_CENTER          =  ((PIXY_MAX_Y-PIXY_MIN_Y) / 2)
 
 
 # Pixy Python SWIG get blocks example #
-
-print ("Pixy Python SWIG Example -- Get Blocks")
 
 # Initialize Pixy Interpreter thread #
 pixy_init()
@@ -30,7 +30,7 @@ class Blocks (Structure):
 blocks = BlockArray(100)
 frame  = 0
 
-ser = serial.Serial("/dev/ttyACM0",9600, timeout=None, writeTimeout=None)
+#ser = serial.Serial("/dev/ttyACM0",9600, timeout=None, writeTimeout=None)
 
 # Wait for blocks #
 while 1:
@@ -63,6 +63,6 @@ while 1:
 		#	data = {"command":"right"}
 		#	json_data = json.dumps(data)
 		#	print json_data
-			ser.write(json_data)
-			ser.write("\n")
-			ser.flush()	
+#			ser.write(json_data)
+#			ser.write("\n")
+#			ser.flush()	
