@@ -1,12 +1,12 @@
 #include <ArduinoJson.h>
 
-#define LMOTORDIR 8
-#define LMOTORPWM 3
-#define RMOTORDIR 6
-#define RMOTORPWM 5
+#define RMOTORDIR 8
+#define RMOTORPWM 3
+#define LMOTORDIR 6
+#define LMOTORPWM 5
 #define PING      13
-#define LMOTORRATIO 1.00f
-#define RMOTORRATIO 1.02f
+#define LMOTORRATIO 1.0f
+#define RMOTORRATIO 1.0f
 #define SLOW    50
 
 #define DEBUG     (12)
@@ -21,7 +21,7 @@ void setup() {
   pinMode(DEBUG, OUTPUT);
   digitalWrite(DEBUG, LOW);
 
-  Serial.begin(9600);
+  Serial.begin(19200);
   Serial.println("start");
   //delay(5000L);
 }
@@ -55,6 +55,7 @@ void loop() {
       if(c  == '\n') break;
       else msg += c; 
     }
+    Serial.flush();
     JsonObject& root = buf.parseObject(msg);
     Serial.println(msg);
     String command = root["command"];

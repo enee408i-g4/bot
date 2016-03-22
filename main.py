@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import json
 import serial
 import sys
@@ -30,7 +32,14 @@ class Blocks (Structure):
 blocks = BlockArray(100)
 frame  = 0
 
-#ser = serial.Serial("/dev/ttyACM0",9600, timeout=None, writeTimeout=None)
+arduino = None
+
+for i in range(0, 4):
+    try:
+        arduino = serial.Serial('/dev/ttyACM%d'  % i, 19200, writeTimeout = 0)
+        break
+    except: pass
+
 
 # Wait for blocks #
 while 1:
@@ -40,29 +49,29 @@ while 1:
   if count > 0:
     # Blocks found #
     frame = frame + 1
-    if (frame % 50000) == 0:
-      # print 'frame %3d:' % (frame/10000)
-      for index in range (0, count):
-      		  if blocks[index].width * blocks[index].height > 400:
-        		pan_error  = PIXY_X_CENTER - blocks[index].x	
-  	  #  if (blocks[index].x > 140 and blocks[index].x < 200 and blocks[index].y > 100 and blocks[index].y < 160 and blocks[index].width > 70 and blocks[index].width < 100 and blocks[index].height > 30 and blocks[index].height < 70):
-        		# print '[BLOCK_TYPE=%d SIG=%d X=%3d Y=%3d WIDTH=%3d HEIGHT=%3d error=%3d]' % (blocks[index].type, blocks[index].signature, blocks[index].x, blocks[index].y, blocks[index].width, blocks[index].height, pan_error)
-			if (pan_error < 15 and pan_error > -15):
+    if (frame % 100000) == 0:
+		for index in range (0, count):
+			fwdRange = 30
+			pan_error = fwdRange + 1
+   			if blocks[index].width * blocks[index].height > 400:
+				pan_error = PIXY_X_CENTER - blocks[index].x	
+			if (pan_error < fwdRange and pan_error > -fwdRange):
 				data = {"command":"forward"}
 				json_data = json.dumps(data)
-				print json_data
-			elif (pan_error < -15):
-				data = {"command":"left"}
-				json_data = json.dumps(data)
-				print json_data
-			elif (pan_error > 15):
+			elif (pan_error < -fwdRange):
 				data = {"command":"right"}
 				json_data = json.dumps(data)
-				print json_data
-      		  #else:
-		#	data = {"command":"right"}
-		#	json_data = json.dumps(data)
-		#	print json_data
-#			ser.write(json_data)
-#			ser.write("\n")
-#			ser.flush()	
+			elif (pan_error > fwdRange):
+				data = {"command":"left"}
+				json_data = json.dumps(data)
+
+			arduino.write(json_data);
+			arduino.write("\n")
+			arduino.flush()
+			print json_data
+  else:
+		data = {"command":"stop"}
+		json_data = json.dumps(data)
+		arduino.write(json_data)
+		arduino.write("\n")
+		print json_data
